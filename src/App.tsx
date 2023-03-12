@@ -11,20 +11,16 @@ import Typography from '@mui/material/Typography';
 import { Loader } from "./components/Loader";
 import { UserFollowerCard } from "./components/UserFollowerCard";
 
+import { findCommonFollowers } from './utils/filters';
+
 import { TFollower } from "./types/User";
-
-const findCommonFollowers = (firstFollowers: TFollower[], secondFollowers: TFollower[]) => {
-  const firstFollowerIds = firstFollowers.map(follower => follower.id);
-
-  return secondFollowers.filter(follower => firstFollowerIds.includes(follower.id));
-}
 
 type TFormValues = {
   firstUsername: string,
   secondUsername: string;
 }
 
-function App() {
+const App = () => {
 
   const {
     register,
@@ -32,16 +28,16 @@ function App() {
     handleSubmit,
   } = useForm<TFormValues>();
 
-  const [commonFollowersState, getCommonFollowers] = useAsyncFn(async (usernames: string[]) => {
+  const [commonFollowersState, getCommonFollowers] = useAsyncFn(async (usernames: [string, string]) => {
     const octokit = new Octokit({ });
 
-    const fetchFollowers = async (username: string) => {
-      return octokit.paginate<TFollower>("GET /users/{username}/followers", {
+    const fetchFollowers = async (username: string) => octokit.paginate<TFollower>(
+      "GET /users/{username}/followers", 
+      {
         username,
         per_page: 100,
-      });
-
-    }
+      }
+    );
 
     const commonFollowers = await
       Promise.all(usernames.map(fetchFollowers))
@@ -75,9 +71,15 @@ function App() {
         <Button className="!mt-2" type='submit'>Find common followers</Button>
       </Box>
 
-      { commonFollowersState.loading && <Loader className="mt-10" text="Fetching & looking for common followers" />}
+      {
+        commonFollowersState.loading &&
+        <Loader className="mt-10" text="Fetching & looking for common followers" />
+      }
 
-      { !commonFollowersState.loading && !commonFollowersState.error && commonFollowersState.value &&
+      {
+        !commonFollowersState.loading &&
+        !commonFollowersState.error &&
+        commonFollowersState.value &&
         <div className='flex flex-col items-center mt-4'>
           <Typography className="!mt-3" variant="h4" component="h4">
             Common followers
