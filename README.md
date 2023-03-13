@@ -6,8 +6,9 @@
 
 ## TODOs/possible improvements:
 
-In the project directory, you can run:
 - Handle too many common followers(pagination/infinite list?)
+- Handle 403 properly(the internal lib just doesn't propagate it?)
+- Improve time complexity of intersection algo
 - Handle an edgecase with whispaces(only whitespaces/a username starts with a space)
 - If the app is planned to have extended functionality, move things from App into the components folder
 - Add end-to-end tests
